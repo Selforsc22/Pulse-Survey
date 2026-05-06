@@ -1,0 +1,2443 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Caveat:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    /* Wellness-tech palette - deep violet, cyan swipe, golden yellow, magenta */
+    --bg: #2A1A5E;
+    --bg-deep: #1F1248;
+    --surface: #382375;
+    --elevated: #46308C;
+    --border: #5A40A8;
+    --border-soft: rgba(255,255,255,0.08);
+
+    --text: #FFFFFF;
+    --text-soft: #E8DFFF;
+    --muted: #A998D8;
+
+    --cyan: #2DD4D4;       /* swipe highlight */
+    --cyan-bright: #5EEAEA;
+    --yellow: #F5D547;     /* subtitle, dot patterns */
+    --magenta: #E879F9;    /* icons, accents */
+    --mint: #6EE7B7;
+    --coral: #FB923C;
+    --danger: #F87171;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 0%, rgba(232, 121, 249, 0.18), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 90% 100%, rgba(45, 212, 212, 0.15), transparent 60%),
+      linear-gradient(180deg, var(--bg) 0%, var(--bg-deep) 100%);
+    min-height: 100vh;
+    background-attachment: fixed;
+    position: relative;
+  }
+
+  /* Subtle cursive background watermark */
+  body::before {
+    content: 'pulse  pulse  pulse  pulse  pulse  pulse  pulse  pulse  pulse  pulse  pulse  pulse  pulse  pulse  pulse  pulse';
+    position: fixed;
+    inset: 0;
+    font-family: 'Caveat', cursive;
+    font-size: 28vw;
+    line-height: 0.85;
+    color: rgba(255,255,255,0.025);
+    word-spacing: -0.3em;
+    overflow: hidden;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+    transform: rotate(-4deg);
+    transform-origin: center;
+  }
+
+  /* Decorative dotted corners (yellow, top-right + bottom-left) */
+  .dots-tr, .dots-bl {
+    position: fixed;
+    width: 90px; height: 90px;
+    background-image: radial-gradient(circle, var(--yellow) 1.5px, transparent 1.5px);
+    background-size: 14px 14px;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.55;
+  }
+  .dots-tr { top: 24px; right: 24px; }
+  .dots-bl { bottom: 24px; left: 24px; transform: rotate(180deg); }
+
+  /* Decorative cyan brackets */
+  .bracket-tl, .bracket-br {
+    position: fixed;
+    width: 20px; height: 60px;
+    border: 2px solid var(--cyan);
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.7;
+  }
+  .bracket-tl { top: 30px; left: 30px; border-right: none; border-bottom: none; }
+  .bracket-br { bottom: 30px; right: 30px; border-left: none; border-top: none; }
+
+  #app { position: relative; z-index: 2; min-height: 100vh; }
+  .container { max-width: 1240px; margin: 0 auto; padding: 28px 32px; }
+
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .script { font-family: 'Caveat', cursive; }
+
+  /* ----- TYPOGRAPHY ----- */
+  .display {
+    font-family: 'Anton', sans-serif;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+    line-height: 0.95;
+  }
+
+  /* Cyan brush swipe highlight - applied as ::after pseudo */
+  .swipe {
+    position: relative;
+    display: inline-block;
+    z-index: 1;
+  }
+  .swipe::after {
+    content: '';
+    position: absolute;
+    left: -8px; right: -8px;
+    top: 35%; bottom: 6%;
+    background: var(--cyan);
+    z-index: -1;
+    border-radius: 6px 30px 8px 24px / 12px 18px 14px 22px;
+    transform: rotate(-1.5deg) skewX(-3deg);
+    box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+    /* Slightly irregular edge mask */
+    clip-path: polygon(2% 8%, 98% 0%, 100% 80%, 96% 100%, 1% 92%, 0% 12%);
+  }
+
+  /* ----- HEADER ----- */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0 24px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'Anton', sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 0.05em;
+    color: var(--text);
+    text-decoration: none;
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+  .logo-mark {
+    width: 36px; height: 36px;
+    position: relative;
+  }
+  .logo-mark svg { width: 100%; height: 100%; }
+
+  .header-right { display: flex; align-items: center; gap: 18px; }
+  .header-link {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.78rem;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+    cursor: pointer;
+  }
+  .header-link:hover { color: var(--yellow); }
+
+  /* ----- HOME ----- */
+  .home {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding-top: 4vh;
+    position: relative;
+  }
+  .home-bulb {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 24px;
+    color: var(--magenta);
+  }
+  .home-bulb svg { width: 100%; height: 100%; }
+
+  .home-tag {
+    font-family: 'Caveat', cursive;
+    font-size: 1.4rem;
+    color: var(--cyan);
+    margin-bottom: 12px;
+    transform: rotate(-2deg);
+  }
+  .home h1 {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(3rem, 9vw, 6.5rem);
+    line-height: 0.92;
+    letter-spacing: 0.005em;
+    margin-bottom: 22px;
+    max-width: 1000px;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+  .home-sub {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(1.1rem, 2vw, 1.45rem);
+    font-weight: 500;
+    color: var(--yellow);
+    max-width: 620px;
+    margin-bottom: 44px;
+    line-height: 1.4;
+  }
+  .home-actions {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 48px;
+  }
+
+  .home-features {
+    margin-top: 40px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    max-width: 980px;
+    width: 100%;
+  }
+  .feat {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border-soft);
+    border-radius: 18px;
+    padding: 24px;
+    text-align: left;
+    backdrop-filter: blur(6px);
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .feat:hover { transform: translateY(-3px); border-color: var(--cyan); }
+  .feat-icon {
+    width: 32px; height: 32px;
+    margin-bottom: 14px;
+    color: var(--magenta);
+  }
+  .feat:nth-child(2) .feat-icon { color: var(--cyan); }
+  .feat:nth-child(3) .feat-icon { color: var(--yellow); }
+  .feat:nth-child(4) .feat-icon { color: var(--mint); }
+  .feat-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .feat-desc {
+    font-size: 0.88rem;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  /* ----- BUTTONS ----- */
+  .btn {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 16px 30px;
+    border: 2px solid var(--yellow);
+    background: var(--yellow);
+    color: var(--bg-deep);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: transform 0.15s, background 0.2s, color 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: 0.01em;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.15);
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 0 rgba(0,0,0,0.15); }
+  .btn:active { transform: translateY(0); box-shadow: 0 2px 0 rgba(0,0,0,0.15); }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--text);
+    border-color: var(--text);
+  }
+  .btn-secondary:hover { background: var(--text); color: var(--bg-deep); }
+
+  .btn-cyan {
+    background: var(--cyan);
+    color: var(--bg-deep);
+    border-color: var(--cyan);
+  }
+  .btn-cyan:hover { background: var(--cyan-bright); border-color: var(--cyan-bright); }
+
+  .btn-danger {
+    border-color: var(--danger);
+    background: transparent;
+    color: var(--danger);
+    font-size: 0.85rem;
+    padding: 10px 20px;
+    box-shadow: none;
+  }
+  .btn-danger:hover { background: var(--danger); color: var(--bg-deep); box-shadow: none; transform: none; }
+
+  .btn-ghost {
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-soft);
+    font-size: 0.85rem;
+    padding: 10px 18px;
+    box-shadow: none;
+    font-weight: 600;
+  }
+  .btn-ghost:hover { border-color: var(--cyan); color: var(--cyan); box-shadow: none; transform: none; }
+
+  /* ----- FORM ----- */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 24px;
+    padding: 36px;
+    margin: 16px auto;
+    backdrop-filter: blur(8px);
+  }
+  .panel-narrow { max-width: 680px; }
+
+  .panel-title {
+    font-family: 'Anton', sans-serif;
+    font-size: 2.2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .panel-sub {
+    color: var(--muted);
+    margin-bottom: 28px;
+    font-size: 0.98rem;
+  }
+
+  .field { margin-bottom: 22px; }
+  .field label {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--cyan);
+    margin-bottom: 10px;
+    font-weight: 700;
+  }
+  .field input[type=text],
+  .field textarea,
+  .field select {
+    width: 100%;
+    background: rgba(0,0,0,0.25);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.05rem;
+    padding: 14px 16px;
+    border-radius: 12px;
+    transition: border 0.15s, background 0.15s;
+  }
+  .field input:focus,
+  .field textarea:focus {
+    outline: none;
+    border-color: var(--cyan);
+    background: rgba(0,0,0,0.35);
+  }
+  .field textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  .type-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+  }
+  .type-option {
+    background: rgba(0,0,0,0.2);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+  .type-option:hover { border-color: var(--cyan); }
+  .type-option.selected {
+    border-color: var(--cyan);
+    background: rgba(45, 212, 212, 0.1);
+  }
+  .type-icon {
+    width: 24px; height: 24px;
+    margin: 0 auto 8px;
+    color: var(--cyan);
+  }
+  .type-option-name {
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 2px;
+  }
+  .type-option-desc {
+    font-size: 0.72rem;
+    color: var(--muted);
+    line-height: 1.3;
+  }
+
+  .options-list { display: flex; flex-direction: column; gap: 8px; }
+  .option-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .option-row input { flex: 1; }
+  .option-row .icon-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    width: 38px; height: 38px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .option-row .icon-btn:hover { color: var(--danger); border-color: var(--danger); }
+
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-soft);
+    cursor: pointer;
+    font-size: 0.95rem;
+  }
+  .checkbox-row input { accent-color: var(--cyan); width: 18px; height: 18px; }
+
+  /* Slide list (multi-question editor) */
+  .slides-editor {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 720px) {
+    .slides-editor { grid-template-columns: 1fr; }
+  }
+  .slide-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+  .slide-thumb {
+    background: rgba(0,0,0,0.2);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .slide-thumb:hover { border-color: var(--cyan); }
+  .slide-thumb.active { border-color: var(--cyan); background: rgba(45, 212, 212, 0.1); }
+  .slide-thumb-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--cyan);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    font-weight: 700;
+  }
+  .slide-thumb-q {
+    font-size: 0.88rem;
+    margin-top: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    line-height: 1.3;
+  }
+  .slide-thumb-empty { color: var(--muted); font-style: italic; }
+  .slide-thumb-type {
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-top: 4px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .slide-thumb-del {
+    position: absolute;
+    top: 8px; right: 8px;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 2px 6px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.15s, color 0.15s;
+  }
+  .slide-thumb:hover .slide-thumb-del { opacity: 1; }
+  .slide-thumb-del:hover { color: var(--danger); background: rgba(0,0,0,0.3); }
+
+  .slide-add-btn {
+    background: transparent;
+    border: 1.5px dashed var(--border);
+    color: var(--muted);
+    border-radius: 12px;
+    padding: 14px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.15s;
+  }
+  .slide-add-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+
+  .slide-editor-pane {
+    background: rgba(0,0,0,0.18);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 24px;
+  }
+
+  /* ----- PRESENT VIEW ----- */
+  .present-wrap {
+    min-height: 100vh;
+    padding: 24px 32px 32px;
+    display: flex;
+    flex-direction: column;
+  }
+  .present-top {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 24px;
+    align-items: stretch;
+    margin-bottom: 24px;
+  }
+  .join-card {
+    background: linear-gradient(135deg, var(--cyan) 0%, var(--cyan-bright) 100%);
+    color: var(--bg-deep);
+    border-radius: 24px;
+    padding: 24px 32px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .join-card::before {
+    content: '';
+    position: absolute;
+    top: -20px; right: -20px;
+    width: 100px; height: 100px;
+    background-image: radial-gradient(circle, rgba(0,0,0,0.15) 1.5px, transparent 1.5px);
+    background-size: 12px 12px;
+    pointer-events: none;
+  }
+  .join-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    z-index: 1;
+  }
+  .join-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    margin-bottom: 4px;
+    opacity: 0.7;
+    font-weight: 700;
+  }
+  .join-url {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+  .join-code-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    opacity: 0.7;
+    margin-bottom: 2px;
+    font-weight: 700;
+  }
+  .join-code {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(2.8rem, 7vw, 4.8rem);
+    letter-spacing: 0.06em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+  .qr-wrap {
+    background: white;
+    padding: 12px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+  }
+  .qr-wrap img { display: block; width: 140px; height: 140px; }
+
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 24px;
+    padding: 36px 40px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    backdrop-filter: blur(8px);
+    position: relative;
+  }
+  .question-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-weight: 700;
+  }
+  .meta-left { display: flex; gap: 16px; align-items: center; }
+  .meta-pill {
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(45, 212, 212, 0.1);
+    color: var(--cyan);
+  }
+  .response-count { color: var(--mint); }
+  .response-count-num {
+    font-family: 'Anton', sans-serif;
+    font-size: 1.4rem;
+    margin-right: 4px;
+    letter-spacing: 0.02em;
+  }
+  .question-text {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(1.8rem, 3.8vw, 3rem);
+    letter-spacing: 0.005em;
+    line-height: 1.05;
+    margin-bottom: 32px;
+    text-transform: uppercase;
+  }
+
+  .results { flex: 1; }
+
+  /* MC results */
+  .mc-bars { display: flex; flex-direction: column; gap: 12px; }
+  .mc-bar {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid var(--border-soft);
+    border-radius: 14px;
+    padding: 16px 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .mc-bar-fill {
+    position: absolute;
+    inset: 0;
+    width: 0;
+    transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0.25;
+  }
+  .mc-bar-content {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+  .mc-bar-label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .mc-correct-mark {
+    color: var(--mint);
+    font-weight: 700;
+  }
+  .mc-bar.is-correct {
+    border-color: var(--mint);
+  }
+  .mc-bar-stats {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .mc-bar-pct {
+    font-family: 'Anton', sans-serif;
+    font-size: 1.6rem;
+    color: var(--text);
+    letter-spacing: 0.02em;
+  }
+  .mc-bar-count {
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+  .mc-bar:nth-child(5n+1) .mc-bar-fill { background: var(--cyan); }
+  .mc-bar:nth-child(5n+2) .mc-bar-fill { background: var(--yellow); }
+  .mc-bar:nth-child(5n+3) .mc-bar-fill { background: var(--magenta); }
+  .mc-bar:nth-child(5n+4) .mc-bar-fill { background: var(--mint); }
+  .mc-bar:nth-child(5n+5) .mc-bar-fill { background: var(--coral); }
+
+  /* Word cloud */
+  .wc {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 0;
+    min-height: 240px;
+  }
+  .wc-word {
+    font-family: 'Anton', sans-serif;
+    line-height: 1;
+    transition: transform 0.3s;
+    animation: pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    letter-spacing: 0.01em;
+    cursor: default;
+    text-transform: uppercase;
+  }
+  .wc-word:hover { transform: scale(1.08); }
+  @keyframes pop-in {
+    from { opacity: 0; transform: scale(0.4); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  /* Open responses */
+  .open-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+  }
+  .open-card {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid var(--border-soft);
+    border-radius: 16px;
+    padding: 18px 20px;
+    font-size: 1rem;
+    line-height: 1.45;
+    animation: card-in 0.4s ease-out;
+    border-left: 4px solid var(--cyan);
+  }
+  .open-card:nth-child(5n+2) { border-left-color: var(--yellow); }
+  .open-card:nth-child(5n+3) { border-left-color: var(--magenta); }
+  .open-card:nth-child(5n+4) { border-left-color: var(--mint); }
+  .open-card:nth-child(5n+5) { border-left-color: var(--coral); }
+  @keyframes card-in {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Scale */
+  .scale-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 32px;
+    align-items: center;
+  }
+  .scale-avg { text-align: center; }
+  .scale-avg-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--cyan);
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+  .scale-avg-value {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(5rem, 14vw, 9rem);
+    line-height: 1;
+    letter-spacing: 0.01em;
+    color: var(--yellow);
+    text-shadow: 0 4px 0 rgba(0,0,0,0.15);
+  }
+  .scale-avg-of {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+  .scale-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    height: 220px;
+  }
+  .scale-bar-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    height: 100%;
+  }
+  .scale-bar-track {
+    flex: 1;
+    width: 100%;
+    background: rgba(0,0,0,0.25);
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+  .scale-bar-fill {
+    width: 100%;
+    background: linear-gradient(180deg, var(--cyan) 0%, var(--cyan-bright) 100%);
+    transition: height 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .scale-bar-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-weight: 700;
+  }
+  .scale-bar-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--cyan);
+    height: 14px;
+    font-weight: 700;
+  }
+
+  /* Ranking */
+  .rank-list { display: flex; flex-direction: column; gap: 10px; }
+  .rank-item {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid var(--border-soft);
+    border-radius: 14px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    position: relative;
+    overflow: hidden;
+  }
+  .rank-pos {
+    font-family: 'Anton', sans-serif;
+    font-size: 2rem;
+    color: var(--yellow);
+    line-height: 1;
+    min-width: 36px;
+    letter-spacing: 0.02em;
+  }
+  .rank-label {
+    flex: 1;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+  .rank-score {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--cyan);
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+
+  .empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 240px;
+    color: var(--muted);
+    font-family: 'Caveat', cursive;
+    font-size: 1.6rem;
+  }
+
+  .present-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .present-actions-group { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .slide-nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .slide-nav-btn {
+    width: 44px; height: 44px;
+    background: var(--cyan);
+    color: var(--bg-deep);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.4rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.15);
+  }
+  .slide-nav-btn:hover { background: var(--cyan-bright); transform: translateY(-2px); box-shadow: 0 5px 0 rgba(0,0,0,0.15); }
+  .slide-nav-btn:active { transform: translateY(0); box-shadow: 0 1px 0 rgba(0,0,0,0.15); }
+  .slide-nav-btn:disabled {
+    background: var(--border);
+    color: var(--muted);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.1);
+  }
+  .slide-nav-counter {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--text-soft);
+    letter-spacing: 0.05em;
+    font-weight: 700;
+  }
+
+  /* ----- JOIN VIEW ----- */
+  .join-wrap {
+    min-height: 100vh;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .join-form { width: 100%; max-width: 460px; margin-top: 6vh; }
+  .join-question-card {
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 22px;
+    padding: 28px;
+    width: 100%;
+    max-width: 580px;
+    margin-top: 4vh;
+    backdrop-filter: blur(8px);
+  }
+  .join-pres-title {
+    font-family: 'Caveat', cursive;
+    font-size: 1.3rem;
+    color: var(--cyan);
+    margin-bottom: 4px;
+  }
+  .join-slide-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    margin-bottom: 12px;
+    font-weight: 700;
+  }
+  .join-question {
+    font-family: 'Anton', sans-serif;
+    font-size: clamp(1.5rem, 5vw, 2.2rem);
+    line-height: 1.05;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    letter-spacing: 0.005em;
+  }
+  .join-mc-options { display: flex; flex-direction: column; gap: 10px; }
+  .join-mc-btn {
+    background: rgba(0,0,0,0.2);
+    border: 2px solid var(--border);
+    color: var(--text);
+    text-align: left;
+    padding: 16px 20px;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 1.05rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .join-mc-btn:hover { border-color: var(--cyan); }
+  .join-mc-btn.selected {
+    border-color: var(--cyan);
+    background: rgba(45, 212, 212, 0.15);
+    color: var(--cyan-bright);
+  }
+  .scale-input-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+  @media (min-width: 480px) {
+    .scale-input-row { grid-template-columns: repeat(10, 1fr); }
+  }
+  .scale-btn {
+    background: rgba(0,0,0,0.2);
+    border: 2px solid var(--border);
+    color: var(--text);
+    aspect-ratio: 1;
+    border-radius: 10px;
+    font-family: 'Anton', sans-serif;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.02em;
+  }
+  .scale-btn:hover { border-color: var(--cyan); }
+  .scale-btn.selected {
+    background: var(--cyan);
+    border-color: var(--cyan);
+    color: var(--bg-deep);
+  }
+  .scale-helper {
+    display: flex;
+    justify-content: space-between;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  /* Drag-rank for participant */
+  .rank-input { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+  .rank-drag-item {
+    background: rgba(0,0,0,0.2);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: grab;
+    transition: all 0.15s;
+    font-size: 1rem;
+    font-weight: 500;
+    user-select: none;
+  }
+  .rank-drag-item:hover { border-color: var(--cyan); }
+  .rank-drag-item.dragging { opacity: 0.4; cursor: grabbing; }
+  .rank-drag-item.drag-over { border-color: var(--yellow); background: rgba(245, 213, 71, 0.1); }
+  .rank-drag-handle {
+    color: var(--muted);
+    font-size: 1.2rem;
+    line-height: 1;
+  }
+  .rank-drag-num {
+    font-family: 'Anton', sans-serif;
+    color: var(--yellow);
+    font-size: 1.3rem;
+    min-width: 22px;
+    letter-spacing: 0.02em;
+  }
+  .rank-helper {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-bottom: 14px;
+  }
+
+  .submitted-state {
+    text-align: center;
+    padding: 32px 16px;
+  }
+  .submitted-icon {
+    width: 60px; height: 60px;
+    margin: 0 auto 16px;
+    background: var(--mint);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bg-deep);
+    font-size: 2rem;
+    font-weight: 700;
+  }
+  .submitted-title {
+    font-family: 'Anton', sans-serif;
+    font-size: 1.8rem;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    letter-spacing: 0.02em;
+  }
+  .submitted-sub {
+    color: var(--muted);
+    margin-bottom: 22px;
+    font-size: 0.95rem;
+  }
+
+  .waiting-state {
+    text-align: center;
+    padding: 32px 16px;
+  }
+  .waiting-pulse {
+    width: 60px; height: 60px;
+    margin: 0 auto 16px;
+    background: var(--cyan);
+    border-radius: 50%;
+    animation: waiting-pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes waiting-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 rgba(45,212,212,0.4); }
+    50% { transform: scale(1.1); opacity: 0.8; box-shadow: 0 0 0 16px rgba(45,212,212,0); }
+  }
+
+  /* ----- MODAL ----- */
+  .modal-bg {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 5, 50, 0.85);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 24px;
+  }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    padding: 32px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal h2 {
+    font-family: 'Anton', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 0.02em;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+  }
+  .modal p, .modal li { color: var(--text-soft); line-height: 1.55; margin-bottom: 8px; }
+  .modal ol { padding-left: 22px; }
+  .modal code {
+    background: rgba(0,0,0,0.3);
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    color: var(--yellow);
+  }
+  .modal pre {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    overflow-x: auto;
+    margin: 12px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--cyan-bright);
+  }
+
+  .alert {
+    padding: 14px 18px;
+    border-radius: 12px;
+    margin-bottom: 18px;
+    font-size: 0.92rem;
+    line-height: 1.45;
+  }
+  .alert-warn {
+    background: rgba(245, 213, 71, 0.1);
+    border: 1px solid var(--yellow);
+    color: var(--yellow);
+  }
+  .alert-error {
+    background: rgba(248, 113, 113, 0.1);
+    border: 1px solid var(--danger);
+    color: var(--danger);
+  }
+
+  @media (max-width: 800px) {
+    .container { padding: 20px 18px; }
+    .present-wrap { padding: 16px; }
+    .present-top { grid-template-columns: 1fr; }
+    .join-card { flex-direction: column; align-items: flex-start; gap: 16px; }
+    .qr-wrap { align-self: center; }
+    .scale-wrap { grid-template-columns: 1fr; gap: 20px; }
+    .scale-bars { height: 160px; }
+    .question-card { padding: 24px; }
+    .panel { padding: 24px; }
+    .dots-tr, .dots-bl { width: 60px; height: 60px; }
+    .bracket-tl, .bracket-br { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="dots-tr"></div>
+<div class="dots-bl"></div>
+<div class="bracket-tl"></div>
+<div class="bracket-br"></div>
+
+<div id="app">
+  <!-- Fallback shown if JS fails to load (e.g. opened via file:// which blocks ES modules) -->
+  <div class="container">
+    <div class="header">
+      <div class="logo"><span style="color: var(--magenta);">●</span> PULSE</div>
+    </div>
+    <div class="panel panel-narrow" id="boot-fallback">
+      <div class="panel-title">Loading…</div>
+      <p class="panel-sub">If you keep seeing this for more than a few seconds, the page failed to load its scripts. Check the box below.</p>
+      <div class="alert alert-warn" id="file-protocol-warn" style="display:none;">
+        <strong>You opened this file directly.</strong><br>
+        Pulse uses ES modules and Firebase, which browsers block on <code>file://</code>. To test it, either:
+        <ol style="margin: 10px 0 0 20px; color: inherit;">
+          <li>Push it to GitHub and enable Pages, or</li>
+          <li>Run a local server in this folder: <code>python3 -m http.server 8000</code><br>then open <code>http://localhost:8000</code></li>
+        </ol>
+      </div>
+      <div class="alert alert-error" id="js-error" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Plain (non-module) script — shows the protocol warning before any module tries to load.
+  if (location.protocol === 'file:') {
+    var warn = document.getElementById('file-protocol-warn');
+    if (warn) warn.style.display = 'block';
+    var fallback = document.getElementById('boot-fallback');
+    if (fallback) {
+      var title = fallback.querySelector('.panel-title');
+      if (title) title.textContent = 'Cannot run from file://';
+      var sub = fallback.querySelector('.panel-sub');
+      if (sub) sub.textContent = 'Browsers block ES modules and remote scripts when an HTML file is opened directly. See below.';
+    }
+  }
+  // Catch script errors so the page doesn't sit silently
+  window.addEventListener('error', function(e) {
+    var box = document.getElementById('js-error');
+    if (box && e && e.message) {
+      box.style.display = 'block';
+      box.textContent = 'Script error: ' + e.message;
+    }
+  });
+</script>
+
+<!-- SVG sprite library (used inline by JS) -->
+<svg width="0" height="0" style="position:absolute;" aria-hidden="true">
+  <defs>
+    <symbol id="i-bulb" viewBox="0 0 64 64">
+      <g fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 26 a10 10 0 0 1 20 0 c0 5 -3 8 -5 11 v5 h-10 v-5 c-2 -3 -5 -6 -5 -11 z"/>
+        <line x1="27" y1="48" x2="37" y2="48"/>
+        <line x1="29" y1="53" x2="35" y2="53"/>
+        <line x1="32" y1="9" x2="32" y2="13"/>
+        <line x1="14" y1="22" x2="18" y2="24"/>
+        <line x1="50" y1="22" x2="46" y2="24"/>
+        <line x1="13" y1="36" x2="17" y2="35"/>
+        <line x1="51" y1="36" x2="47" y2="35"/>
+        <line x1="20" y1="13" x2="22" y2="16"/>
+        <line x1="44" y1="13" x2="42" y2="16"/>
+      </g>
+    </symbol>
+    <symbol id="i-bars" viewBox="0 0 24 24">
+      <g fill="currentColor"><rect x="3" y="13" width="4" height="8" rx="1"/><rect x="10" y="8" width="4" height="13" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></g>
+    </symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24">
+      <g fill="currentColor"><circle cx="6" cy="14" r="3"/><circle cx="18" cy="10" r="3"/><circle cx="11" cy="8" r="2"/><circle cx="14" cy="17" r="2.5"/><circle cx="20" cy="17" r="1.5"/></g>
+    </symbol>
+    <symbol id="i-text" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></g>
+    </symbol>
+    <symbol id="i-scale" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"/><circle cx="3" cy="12" r="2" fill="currentColor"/><circle cx="9" cy="12" r="1.2" fill="currentColor"/><circle cx="15" cy="12" r="1.2" fill="currentColor"/><circle cx="21" cy="12" r="2" fill="currentColor"/></g>
+    </symbol>
+    <symbol id="i-rank" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 6h14M5 12h10M5 18h6"/><path d="M17 14l3 3-3 3M20 17H13"/></g>
+    </symbol>
+    <symbol id="i-quiz" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.5-2 2-2.5 3.5"/><circle cx="12" cy="17" r="0.5" fill="currentColor"/></g>
+    </symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6"/><path d="M10 11v6M14 11v6"/></g>
+    </symbol>
+    <symbol id="i-grip" viewBox="0 0 24 24">
+      <g fill="currentColor"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></g>
+    </symbol>
+    <symbol id="i-realtime" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 4v2M12 18v2M4 12h2M18 12h2M6 6l1.5 1.5M16.5 16.5L18 18M6 18l1.5-1.5M16.5 7.5L18 6"/></g>
+    </symbol>
+    <symbol id="i-qr" viewBox="0 0 24 24">
+      <g fill="currentColor"><rect x="3" y="3" width="7" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><rect x="6" y="6" width="1" height="1"/><rect x="17" y="6" width="1" height="1"/><rect x="6" y="17" width="1" height="1"/><rect x="14" y="14" width="2" height="2"/><rect x="18" y="14" width="2" height="2"/><rect x="14" y="18" width="2" height="2"/><rect x="18" y="18" width="2" height="2"/></g>
+    </symbol>
+    <symbol id="i-export" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></g>
+    </symbol>
+    <symbol id="i-slides" viewBox="0 0 24 24">
+      <g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></g>
+    </symbol>
+  </defs>
+</svg>
+
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+  import {
+    getDatabase, ref, onValue, push, set, remove, update, get
+  } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+  // ============================================================
+  // FIREBASE_CONFIG_HERE — paste your firebaseConfig object below
+  // ============================================================
+ const firebaseConfig = {
+  apiKey: "AIzaSyBoyW2qhKvvuF9Zw1et6NS4aL9Jej_kDe4",
+  authDomain: "mentimeterdupe.firebaseapp.com",
+  databaseURL: "https://mentimeterdupe-default-rtdb.firebaseio.com",
+  projectId: "mentimeterdupe",
+  storageBucket: "mentimeterdupe.firebasestorage.app",
+  messagingSenderId: "936897871717",
+  appId: "1:936897871717:web:c281051feb7cc509172b8c"
+};
+  // ============================================================
+
+  const isConfigured = !firebaseConfig.apiKey.startsWith('PASTE_');
+  let db = null;
+  if (isConfigured) {
+    try {
+      const fbApp = initializeApp(firebaseConfig);
+      db = getDatabase(fbApp);
+    } catch (e) {
+      console.error('Firebase init failed:', e);
+    }
+  }
+
+  // ----- Helpers -----
+  function getPid() {
+    let pid = localStorage.getItem('pulse_pid');
+    if (!pid) {
+      pid = 'p_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+      localStorage.setItem('pulse_pid', pid);
+    }
+    return pid;
+  }
+
+  function genCode() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let s = '';
+    for (let i = 0; i < 4; i++) s += chars[Math.floor(Math.random() * chars.length)];
+    return s;
+  }
+
+  function genId(prefix) {
+    return prefix + Math.random().toString(36).slice(2, 10);
+  }
+
+  function escapeHTML(s) {
+    return String(s ?? '').replace(/[&<>"']/g, c => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[c]));
+  }
+
+  function svgIcon(id, cls = '') {
+    return `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true"><use href="#${id}"></use></svg>`;
+  }
+
+  // ----- Routing -----
+  function getRoute() {
+    const hash = location.hash.slice(1) || '/';
+    const parts = hash.split('/').filter(Boolean);
+    return { path: parts[0] || 'home', code: parts[1] || null };
+  }
+  function navigate(path) { location.hash = path; }
+  window.addEventListener('hashchange', render);
+  window.addEventListener('load', render);
+
+  // ----- Render -----
+  const app = document.getElementById('app');
+  let listeners = [];
+  function cleanup() {
+    listeners.forEach(fn => { try { fn(); } catch(e){} });
+    listeners = [];
+  }
+
+  function render() {
+    cleanup();
+    if (!isConfigured) { renderConfigWarning(); return; }
+    const route = getRoute();
+    switch (route.path) {
+      case 'home':    renderHome(); break;
+      case 'create':  renderCreate(); break;
+      case 'present': renderPresent(route.code); break;
+      case 'join':    renderJoin(route.code); break;
+      default:        renderHome();
+    }
+  }
+
+  // ============== HEADER ==============
+  function headerHTML() {
+    return `
+      <div class="header container-inline">
+        <a class="logo" data-nav="/">
+          <span class="logo-mark" style="color: var(--magenta);">${svgIcon('i-bulb')}</span>
+          PULSE
+        </a>
+        <div class="header-right">
+          <a class="header-link" data-nav="/join">Join Poll</a>
+          <a class="header-link" data-action="setup">Setup</a>
+        </div>
+      </div>
+    `;
+  }
+  function bindHeader() {
+    document.querySelectorAll('[data-nav]').forEach(el => {
+      el.addEventListener('click', e => { e.preventDefault(); navigate(el.dataset.nav); });
+    });
+    document.querySelectorAll('[data-action="setup"]').forEach(el => {
+      el.addEventListener('click', e => { e.preventDefault(); openSetupModal(); });
+    });
+  }
+
+  // ============== CONFIG WARNING ==============
+  function renderConfigWarning() {
+    app.innerHTML = `
+      <div class="container">
+        ${headerHTML()}
+        <div class="panel panel-narrow">
+          <div class="panel-title">Setup needed</div>
+          <p class="panel-sub">Pulse needs a Firebase backend before responses can sync. About 5 minutes.</p>
+          <div class="alert alert-warn">
+            Open <code>index.html</code> and replace the placeholder
+            <code>firebaseConfig</code> values near the top of the
+            <code>&lt;script&gt;</code> tag.
+          </div>
+          <button class="btn" data-action="setup">Setup instructions →</button>
+        </div>
+      </div>
+    `;
+    bindHeader();
+  }
+
+  // ============== HOME ==============
+  function renderHome() {
+    app.innerHTML = `
+      <div class="container">
+        ${headerHTML()}
+        <div class="home">
+          <div class="home-bulb" style="color: var(--magenta);">${svgIcon('i-bulb')}</div>
+          <div class="home-tag">live polling · zero install</div>
+          <h1 class="display">
+            Ask the room.
+            <br>
+            <span class="swipe">See what they think.</span>
+          </h1>
+          <p class="home-sub">Drop a question on screen. Everyone scans the QR code, taps an answer, and the results animate in real time. Built for classrooms, meetups, workshops.</p>
+          <div class="home-actions">
+            <a class="btn" data-nav="/create">Create a poll →</a>
+            <a class="btn btn-secondary" data-nav="/join">Join with code</a>
+          </div>
+
+          <div class="home-features">
+            <div class="feat">
+              <div class="feat-icon">${svgIcon('i-realtime')}</div>
+              <div class="feat-title">Real-time results</div>
+              <div class="feat-desc">Bars grow, words bloom, and ratings update the moment someone taps submit.</div>
+            </div>
+            <div class="feat">
+              <div class="feat-icon">${svgIcon('i-slides')}</div>
+              <div class="feat-title">Multi-question flows</div>
+              <div class="feat-desc">String together a series of questions and walk the audience through them.</div>
+            </div>
+            <div class="feat">
+              <div class="feat-icon">${svgIcon('i-qr')}</div>
+              <div class="feat-title">QR + 4-letter code</div>
+              <div class="feat-desc">Anyone in the room joins in seconds — no app, no signup, just their phone.</div>
+            </div>
+            <div class="feat">
+              <div class="feat-icon">${svgIcon('i-export')}</div>
+              <div class="feat-title">Export everything</div>
+              <div class="feat-desc">Download all responses as JSON when you're done — perfect for meeting notes.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    bindHeader();
+  }
+
+  // ============== CREATE ==============
+  // State for create flow lives outside paint() so it survives re-renders
+  function renderCreate() {
+    const state = {
+      title: '',
+      slides: [
+        { id: genId('s_'), q: '', type: 'mc', options: ['', ''], correctIndex: null }
+      ],
+      activeIndex: 0
+    };
+
+    function paint() {
+      const slide = state.slides[state.activeIndex];
+      app.innerHTML = `
+        <div class="container">
+          ${headerHTML()}
+          <div class="panel">
+            <div class="panel-title">New presentation</div>
+            <p class="panel-sub">Add one or more questions. Participants will see them in order as you advance the slides.</p>
+
+            <div class="field">
+              <label>Presentation title (optional)</label>
+              <input id="title" type="text" placeholder="ISSA October check-in" value="${escapeHTML(state.title)}">
+            </div>
+
+            <div class="slides-editor">
+              <div>
+                <label style="display:block; font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--cyan); margin-bottom: 10px; font-weight: 700;">Slides</label>
+                <div class="slide-list">
+                  ${state.slides.map((s, i) => `
+                    <div class="slide-thumb ${i === state.activeIndex ? 'active' : ''}" data-i="${i}">
+                      <div class="slide-thumb-num">Slide ${i + 1}</div>
+                      <div class="slide-thumb-q ${!s.q ? 'slide-thumb-empty' : ''}">${s.q ? escapeHTML(s.q) : 'Untitled question'}</div>
+                      <div class="slide-thumb-type">${typeLabel(s.type)}</div>
+                      ${state.slides.length > 1 ? `<button class="slide-thumb-del" data-del="${i}" title="Delete slide">×</button>` : ''}
+                    </div>
+                  `).join('')}
+                  <button class="slide-add-btn" id="add-slide">+ Add slide</button>
+                </div>
+              </div>
+
+              <div class="slide-editor-pane">
+                ${slideEditorHTML(slide)}
+              </div>
+            </div>
+
+            <div style="display:flex; gap:12px; margin-top: 28px;">
+              <button class="btn" id="launch-btn">Launch presentation →</button>
+              <a class="btn btn-secondary" data-nav="/">Cancel</a>
+            </div>
+          </div>
+        </div>
+      `;
+      bindHeader();
+      bindCreate();
+    }
+
+    function slideEditorHTML(slide) {
+      return `
+        <div class="field">
+          <label>Question (Slide ${state.activeIndex + 1})</label>
+          <textarea id="q" placeholder="What's on your mind?">${escapeHTML(slide.q)}</textarea>
+        </div>
+        <div class="field">
+          <label>Answer type</label>
+          <div class="type-grid">
+            ${typeOptionHTML('mc',    'Multiple choice', 'i-bars',  slide.type)}
+            ${typeOptionHTML('cloud', 'Word cloud',      'i-cloud', slide.type)}
+            ${typeOptionHTML('open',  'Open ended',      'i-text',  slide.type)}
+            ${typeOptionHTML('scale', 'Scale 1–10',      'i-scale', slide.type)}
+            ${typeOptionHTML('rank',  'Ranking',         'i-rank',  slide.type)}
+            ${typeOptionHTML('quiz',  'Quiz',            'i-quiz',  slide.type)}
+          </div>
+        </div>
+        ${(slide.type === 'mc' || slide.type === 'rank' || slide.type === 'quiz') ? mcOptionsHTML(slide) : ''}
+      `;
+    }
+
+    function typeOptionHTML(type, name, icon, selected) {
+      const desc = ({
+        mc:'Bar chart of votes',
+        cloud:'Sized by frequency',
+        open:'Free-text cards',
+        scale:'1–10 with average',
+        rank:'Drag to order',
+        quiz:'Right answer reveal'
+      })[type];
+      return `
+        <div class="type-option ${selected===type?'selected':''}" data-type="${type}">
+          <div class="type-icon">${svgIcon(icon)}</div>
+          <div class="type-option-name">${name}</div>
+          <div class="type-option-desc">${desc}</div>
+        </div>
+      `;
+    }
+
+    function mcOptionsHTML(slide) {
+      const labelText = slide.type === 'rank' ? 'Items to rank' : 'Options';
+      return `
+        <div class="field">
+          <label>${labelText}</label>
+          <div class="options-list">
+            ${slide.options.map((o, i) => `
+              <div class="option-row">
+                <input class="option-input" data-i="${i}" type="text" placeholder="${slide.type === 'rank' ? `Item ${i+1}` : `Option ${i+1}`}" value="${escapeHTML(o)}">
+                ${slide.type === 'quiz' ? `
+                  <label class="checkbox-row" style="margin: 0; padding: 0 8px;">
+                    <input type="radio" name="correct" data-correct="${i}" ${slide.correctIndex === i ? 'checked' : ''}>
+                    <span style="font-size:0.85rem;">Correct</span>
+                  </label>
+                ` : ''}
+                ${slide.options.length > 2 ? `<button class="icon-btn" data-rm="${i}" title="Remove">${svgIcon('i-trash')}</button>` : ''}
+              </div>
+            `).join('')}
+          </div>
+          <button class="btn-ghost btn" id="add-option" style="margin-top: 10px;">+ Add ${slide.type === 'rank' ? 'item' : 'option'}</button>
+        </div>
+      `;
+    }
+
+    function bindCreate() {
+      // Save current input values back into state on every input
+      const titleEl = document.getElementById('title');
+      titleEl.addEventListener('input', () => { state.title = titleEl.value; });
+
+      const qEl = document.getElementById('q');
+      if (qEl) qEl.addEventListener('input', () => {
+        state.slides[state.activeIndex].q = qEl.value;
+        // Update thumbnail without full repaint
+        const thumb = document.querySelector(`.slide-thumb[data-i="${state.activeIndex}"] .slide-thumb-q`);
+        if (thumb) {
+          thumb.textContent = qEl.value || 'Untitled question';
+          thumb.classList.toggle('slide-thumb-empty', !qEl.value);
+        }
+      });
+
+      // Slide thumbnail navigation
+      document.querySelectorAll('.slide-thumb').forEach(el => {
+        el.addEventListener('click', e => {
+          if (e.target.closest('.slide-thumb-del')) return;
+          state.activeIndex = parseInt(el.dataset.i, 10);
+          paint();
+        });
+      });
+      document.querySelectorAll('[data-del]').forEach(el => {
+        el.addEventListener('click', e => {
+          e.stopPropagation();
+          const i = parseInt(el.dataset.del, 10);
+          if (!confirm('Delete this slide?')) return;
+          state.slides.splice(i, 1);
+          if (state.activeIndex >= state.slides.length) state.activeIndex = state.slides.length - 1;
+          paint();
+        });
+      });
+
+      const addSlide = document.getElementById('add-slide');
+      if (addSlide) addSlide.addEventListener('click', () => {
+        state.slides.push({ id: genId('s_'), q: '', type: 'mc', options: ['', ''], correctIndex: null });
+        state.activeIndex = state.slides.length - 1;
+        paint();
+      });
+
+      // Type selection
+      document.querySelectorAll('.type-option').forEach(el => {
+        el.addEventListener('click', () => {
+          const t = el.dataset.type;
+          const slide = state.slides[state.activeIndex];
+          slide.type = t;
+          // Ensure options exist if needed
+          if ((t === 'mc' || t === 'rank' || t === 'quiz') && (!slide.options || slide.options.length < 2)) {
+            slide.options = ['', ''];
+          }
+          if (t !== 'quiz') slide.correctIndex = null;
+          paint();
+        });
+      });
+
+      // Option inputs
+      document.querySelectorAll('.option-input').forEach(el => {
+        el.addEventListener('input', () => {
+          const i = parseInt(el.dataset.i, 10);
+          state.slides[state.activeIndex].options[i] = el.value;
+        });
+      });
+      document.querySelectorAll('[data-rm]').forEach(el => {
+        el.addEventListener('click', () => {
+          const i = parseInt(el.dataset.rm, 10);
+          const slide = state.slides[state.activeIndex];
+          slide.options.splice(i, 1);
+          if (slide.correctIndex === i) slide.correctIndex = null;
+          else if (slide.correctIndex > i) slide.correctIndex--;
+          paint();
+        });
+      });
+      document.querySelectorAll('[data-correct]').forEach(el => {
+        el.addEventListener('change', () => {
+          state.slides[state.activeIndex].correctIndex = parseInt(el.dataset.correct, 10);
+        });
+      });
+      const addOpt = document.getElementById('add-option');
+      if (addOpt) addOpt.addEventListener('click', () => {
+        state.slides[state.activeIndex].options.push('');
+        paint();
+      });
+
+      // Launch
+      document.getElementById('launch-btn').addEventListener('click', launchPoll);
+    }
+
+    async function launchPoll() {
+      // Validate
+      for (let i = 0; i < state.slides.length; i++) {
+        const s = state.slides[i];
+        if (!s.q || !s.q.trim()) { alert(`Slide ${i+1} needs a question.`); state.activeIndex = i; paint(); return; }
+        if (s.type === 'mc' || s.type === 'rank' || s.type === 'quiz') {
+          const cleaned = s.options.map(o => (o || '').trim()).filter(Boolean);
+          if (cleaned.length < 2) { alert(`Slide ${i+1} needs at least two options.`); state.activeIndex = i; paint(); return; }
+          s.options = cleaned;
+          if (s.type === 'quiz' && (s.correctIndex == null || s.correctIndex >= cleaned.length)) {
+            alert(`Slide ${i+1} (quiz) needs a correct answer marked.`); state.activeIndex = i; paint(); return;
+          }
+        }
+      }
+
+      const code = genCode();
+      const slidesObj = {};
+      const slideOrder = [];
+      state.slides.forEach(s => {
+        slideOrder.push(s.id);
+        const obj = { q: s.q.trim(), type: s.type };
+        if (s.options) obj.options = s.options;
+        if (s.correctIndex != null) obj.correctIndex = s.correctIndex;
+        slidesObj[s.id] = obj;
+      });
+
+      try {
+        await set(ref(db, `polls/${code}`), {
+          meta: {
+            title: state.title.trim() || null,
+            slideOrder,
+            currentSlide: slideOrder[0],
+            createdAt: Date.now()
+          },
+          slides: slidesObj
+        });
+        navigate(`/present/${code}`);
+      } catch (e) {
+        alert('Could not create: ' + e.message);
+      }
+    }
+
+    paint();
+  }
+
+  function typeLabel(t) {
+    return ({
+      mc: 'Multiple choice',
+      cloud: 'Word cloud',
+      open: 'Open ended',
+      scale: 'Scale 1–10',
+      rank: 'Ranking',
+      quiz: 'Quiz'
+    })[t] || t;
+  }
+
+  // ============== PRESENT ==============
+  function renderPresent(code) {
+    if (!code) { navigate('/'); return; }
+    code = code.toUpperCase();
+
+    app.innerHTML = `
+      <div class="present-wrap">
+        ${headerHTML()}
+        <div id="present-body"><div class="empty">Loading…</div></div>
+      </div>
+    `;
+    bindHeader();
+
+    const body = document.getElementById('present-body');
+    let pollData = null;
+
+    const pollRef = ref(db, `polls/${code}`);
+    const unsub = onValue(pollRef, snap => {
+      pollData = snap.val();
+      if (!pollData) {
+        body.innerHTML = `
+          <div class="panel panel-narrow">
+            <div class="panel-title">Poll not found</div>
+            <p class="panel-sub">Code <code>${code}</code> doesn't exist or was deleted.</p>
+            <a class="btn" data-nav="/">Home</a>
+          </div>
+        `;
+        bindHeader();
+        return;
+      }
+      paint();
+    });
+    listeners.push(unsub);
+
+    function paint() {
+      if (!pollData || !pollData.meta) return;
+      const meta = pollData.meta;
+      const slides = pollData.slides || {};
+      const order = meta.slideOrder || [];
+      const currentId = meta.currentSlide || order[0];
+      const currentIdx = order.indexOf(currentId);
+      const slide = slides[currentId];
+      if (!slide) return;
+
+      const responses = (pollData.responses && pollData.responses[currentId]) || {};
+      const baseUrl = location.origin + location.pathname;
+      const joinUrl = `${baseUrl}#/join/${code}`;
+      const joinUrlNoCode = `${baseUrl}#/join`;
+      const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=0&data=${encodeURIComponent(joinUrl)}`;
+      const responseCount = Object.keys(responses).length;
+
+      body.innerHTML = `
+        <div class="present-top">
+          <div class="join-card">
+            <div class="join-info">
+              <div class="join-label">Join at</div>
+              <div class="join-url">${shortenUrl(joinUrlNoCode)}</div>
+              <div class="join-code-label">Code</div>
+              <div class="join-code">${code}</div>
+            </div>
+            <div class="qr-wrap"><img src="${qrSrc}" alt="QR code"></div>
+          </div>
+        </div>
+
+        <div class="question-card">
+          <div class="question-meta">
+            <div class="meta-left">
+              <span class="meta-pill">${typeLabel(slide.type)}</span>
+              ${meta.title ? `<span style="color: var(--text-soft); text-transform: none; letter-spacing: 0.02em; font-family: 'Caveat', cursive; font-size: 1.05rem;">${escapeHTML(meta.title)}</span>` : ''}
+            </div>
+            <span class="response-count">
+              <span class="response-count-num">${responseCount}</span>
+              ${responseCount === 1 ? 'response' : 'responses'}
+            </span>
+          </div>
+          <div class="question-text">${escapeHTML(slide.q)}</div>
+          <div class="results">${renderResults(slide, responses)}</div>
+        </div>
+
+        <div class="present-actions">
+          <div class="slide-nav">
+            <button class="slide-nav-btn" id="prev-slide" ${currentIdx <= 0 ? 'disabled' : ''} aria-label="Previous slide">‹</button>
+            <span class="slide-nav-counter">${currentIdx + 1} / ${order.length}</span>
+            <button class="slide-nav-btn" id="next-slide" ${currentIdx >= order.length - 1 ? 'disabled' : ''} aria-label="Next slide">›</button>
+          </div>
+          <div class="present-actions-group">
+            <button class="btn btn-ghost" id="copy-link">Copy join link</button>
+            <button class="btn btn-ghost" id="export-btn">Export results</button>
+            <button class="btn btn-ghost" id="reset-btn">Reset slide</button>
+            <button class="btn btn-danger" id="end-btn">End poll</button>
+          </div>
+        </div>
+      `;
+
+      // Animate fills after DOM is in
+      requestAnimationFrame(() => {
+        document.querySelectorAll('.mc-bar-fill[data-pct]').forEach(el => {
+          el.style.width = el.dataset.pct + '%';
+        });
+        document.querySelectorAll('.scale-bar-fill[data-pct]').forEach(el => {
+          el.style.height = el.dataset.pct + '%';
+        });
+      });
+
+      // Slide nav
+      const prevBtn = document.getElementById('prev-slide');
+      const nextBtn = document.getElementById('next-slide');
+      if (prevBtn) prevBtn.onclick = async () => {
+        const newIdx = currentIdx - 1;
+        if (newIdx < 0) return;
+        await update(ref(db, `polls/${code}/meta`), { currentSlide: order[newIdx] });
+      };
+      if (nextBtn) nextBtn.onclick = async () => {
+        const newIdx = currentIdx + 1;
+        if (newIdx >= order.length) return;
+        await update(ref(db, `polls/${code}/meta`), { currentSlide: order[newIdx] });
+      };
+
+      // Keyboard nav
+      const keyHandler = (e) => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        if (e.key === 'ArrowRight' && nextBtn && !nextBtn.disabled) nextBtn.click();
+        if (e.key === 'ArrowLeft' && prevBtn && !prevBtn.disabled) prevBtn.click();
+      };
+      document.addEventListener('keydown', keyHandler);
+      listeners.push(() => document.removeEventListener('keydown', keyHandler));
+
+      // Buttons
+      document.getElementById('copy-link').onclick = () => {
+        navigator.clipboard.writeText(joinUrl);
+        const btn = document.getElementById('copy-link');
+        btn.textContent = 'Copied ✓';
+        setTimeout(() => btn.textContent = 'Copy join link', 1500);
+      };
+      document.getElementById('export-btn').onclick = () => exportResults(code, pollData);
+      document.getElementById('reset-btn').onclick = async () => {
+        if (!confirm('Clear all responses for this slide?')) return;
+        await remove(ref(db, `polls/${code}/responses/${currentId}`));
+      };
+      document.getElementById('end-btn').onclick = async () => {
+        if (!confirm('End this poll permanently? It cannot be reopened.')) return;
+        await remove(ref(db, `polls/${code}`));
+        navigate('/');
+      };
+    }
+  }
+
+  function shortenUrl(url) {
+    return url.replace(/^https?:\/\//, '').replace(/\/$/, '');
+  }
+
+  // ============== RESULTS ==============
+  function renderResults(slide, responses) {
+    const arr = Object.values(responses);
+    if (!arr.length) return `<div class="empty">Waiting for the first response…</div>`;
+
+    if (slide.type === 'mc' || slide.type === 'quiz') return renderMC(slide, arr);
+    if (slide.type === 'cloud') return renderCloud(arr);
+    if (slide.type === 'open')  return renderOpen(arr);
+    if (slide.type === 'scale') return renderScale(arr);
+    if (slide.type === 'rank')  return renderRank(slide, arr);
+    return '';
+  }
+
+  function renderMC(slide, arr) {
+    const counts = slide.options.map(() => 0);
+    arr.forEach(r => {
+      const i = typeof r.choice === 'number' ? r.choice : -1;
+      if (i >= 0 && i < counts.length) counts[i]++;
+    });
+    const total = counts.reduce((a, b) => a + b, 0) || 1;
+    return `
+      <div class="mc-bars">
+        ${slide.options.map((opt, i) => {
+          const count = counts[i];
+          const pct = (count / total) * 100;
+          const isCorrect = slide.type === 'quiz' && slide.correctIndex === i;
+          return `
+            <div class="mc-bar ${isCorrect ? 'is-correct' : ''}">
+              <div class="mc-bar-fill" data-pct="${pct.toFixed(1)}"></div>
+              <div class="mc-bar-content">
+                <div class="mc-bar-label">
+                  ${escapeHTML(opt)}
+                  ${isCorrect ? `<span class="mc-correct-mark">✓ correct</span>` : ''}
+                </div>
+                <div class="mc-bar-stats">
+                  <span class="mc-bar-pct">${pct.toFixed(0)}%</span>
+                  <span class="mc-bar-count">${count} ${count===1?'vote':'votes'}</span>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+  }
+
+  function renderCloud(arr) {
+    const freq = {};
+    arr.forEach(r => {
+      const text = (r.text || '').trim().toLowerCase();
+      if (!text) return;
+      const word = text.split(/\s+/).slice(0, 3).join(' ');
+      freq[word] = (freq[word] || 0) + 1;
+    });
+    const entries = Object.entries(freq).sort((a, b) => b[1] - a[1]);
+    if (!entries.length) return `<div class="empty">Waiting for responses…</div>`;
+    const max = entries[0][1];
+    const colors = ['var(--cyan)', 'var(--yellow)', 'var(--magenta)', 'var(--mint)', 'var(--coral)'];
+    return `
+      <div class="wc">
+        ${entries.map((e, i) => {
+          const [word, count] = e;
+          const ratio = count / max;
+          const size = (1.6 + ratio * 4).toFixed(2);
+          const color = colors[i % colors.length];
+          return `<span class="wc-word" style="font-size:${size}rem; color:${color};" title="${count}×">${escapeHTML(word)}</span>`;
+        }).join('')}
+      </div>
+    `;
+  }
+
+  function renderOpen(arr) {
+    const sorted = arr.slice().sort((a, b) => (b.ts || 0) - (a.ts || 0));
+    return `
+      <div class="open-list">
+        ${sorted.map(r => `
+          <div class="open-card">${escapeHTML(r.text || '')}</div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  function renderScale(arr) {
+    const buckets = Array(10).fill(0);
+    let sum = 0, n = 0;
+    arr.forEach(r => {
+      const v = typeof r.value === 'number' ? r.value : -1;
+      if (v >= 1 && v <= 10) {
+        buckets[v - 1]++;
+        sum += v; n++;
+      }
+    });
+    const avg = n ? (sum / n).toFixed(1) : '0.0';
+    const max = Math.max(...buckets, 1);
+    return `
+      <div class="scale-wrap">
+        <div class="scale-avg">
+          <div class="scale-avg-label">Average</div>
+          <div class="scale-avg-value">${avg}</div>
+          <div class="scale-avg-of">of 10 · ${n} ${n===1?'response':'responses'}</div>
+        </div>
+        <div class="scale-bars">
+          ${buckets.map((c, i) => `
+            <div class="scale-bar-col">
+              <div class="scale-bar-count">${c || ''}</div>
+              <div class="scale-bar-track">
+                <div class="scale-bar-fill" data-pct="${(c/max*100).toFixed(1)}"></div>
+              </div>
+              <div class="scale-bar-label">${i+1}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  function renderRank(slide, arr) {
+    // Each response has an order array of option indices, top first
+    // Score: items get points (n - position) where n = options length
+    const n = slide.options.length;
+    const scores = slide.options.map(() => 0);
+    arr.forEach(r => {
+      if (!Array.isArray(r.order)) return;
+      r.order.forEach((idx, pos) => {
+        if (idx >= 0 && idx < n) scores[idx] += (n - pos);
+      });
+    });
+    // Sort options by score
+    const ranked = slide.options.map((opt, i) => ({ opt, i, score: scores[i] }))
+      .sort((a, b) => b.score - a.score);
+    return `
+      <div class="rank-list">
+        ${ranked.map((r, pos) => `
+          <div class="rank-item">
+            <div class="rank-pos">#${pos + 1}</div>
+            <div class="rank-label">${escapeHTML(r.opt)}</div>
+            <div class="rank-score">${r.score} pts</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  // ============== EXPORT ==============
+  function exportResults(code, pollData) {
+    const exportObj = {
+      code,
+      exportedAt: new Date().toISOString(),
+      title: pollData.meta.title || null,
+      slides: (pollData.meta.slideOrder || []).map(sid => {
+        const s = pollData.slides[sid];
+        const r = (pollData.responses && pollData.responses[sid]) || {};
+        return {
+          id: sid,
+          question: s.q,
+          type: s.type,
+          options: s.options || null,
+          correctIndex: s.correctIndex ?? null,
+          responseCount: Object.keys(r).length,
+          responses: Object.entries(r).map(([pid, resp]) => ({ pid, ...resp }))
+        };
+      })
+    };
+    const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `pulse-${code}-${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  // ============== JOIN ==============
+  function renderJoin(code) {
+    if (!code) {
+      app.innerHTML = `
+        <div class="join-wrap">
+          ${headerHTML()}
+          <div class="join-form">
+            <div class="panel">
+              <div class="panel-title">Join a poll</div>
+              <p class="panel-sub">Enter the 4-character code shown by the presenter.</p>
+              <div class="field">
+                <label>Code</label>
+                <input id="code-input" type="text" placeholder="ABCD" maxlength="4" autocapitalize="characters" style="text-transform:uppercase; font-family:'Anton', sans-serif; font-size:2.2rem; letter-spacing:0.15em; text-align:center;">
+              </div>
+              <button class="btn btn-cyan" id="join-btn" style="width:100%;">Join →</button>
+            </div>
+          </div>
+        </div>
+      `;
+      bindHeader();
+      const input = document.getElementById('code-input');
+      input.focus();
+      const go = () => {
+        const c = input.value.trim().toUpperCase();
+        if (c.length === 4) navigate(`/join/${c}`);
+      };
+      document.getElementById('join-btn').onclick = go;
+      input.addEventListener('keyup', e => { if (e.key === 'Enter') go(); });
+      return;
+    }
+    code = code.toUpperCase();
+
+    app.innerHTML = `
+      <div class="join-wrap">
+        ${headerHTML()}
+        <div id="join-body" class="join-question-card"><div class="empty">Loading…</div></div>
+      </div>
+    `;
+    bindHeader();
+    const body = document.getElementById('join-body');
+
+    const pollRef = ref(db, `polls/${code}`);
+    let lastSlideId = null;
+    const unsub = onValue(pollRef, snap => {
+      const pollData = snap.val();
+      if (!pollData || !pollData.meta) {
+        body.innerHTML = `
+          <div class="panel-title">Poll not found</div>
+          <p class="panel-sub">Code <code>${code}</code> doesn't exist or has ended.</p>
+          <a class="btn" data-nav="/join">Try another code</a>
+        `;
+        bindHeader();
+        return;
+      }
+      const meta = pollData.meta;
+      const slides = pollData.slides || {};
+      const currentId = meta.currentSlide || (meta.slideOrder && meta.slideOrder[0]);
+      const slide = slides[currentId];
+      if (!slide) return;
+
+      // Detect slide change to reset submitted state visually
+      const slideChanged = currentId !== lastSlideId;
+      lastSlideId = currentId;
+
+      paintJoin(meta, slide, currentId, slideChanged);
+    });
+    listeners.push(unsub);
+
+    const pid = getPid();
+
+    function paintJoin(meta, slide, currentId, isFresh) {
+      const submittedKey = `pulse_submitted_${code}_${currentId}`;
+      const wasSubmitted = !!localStorage.getItem(submittedKey);
+
+      const order = meta.slideOrder || [];
+      const idx = order.indexOf(currentId);
+
+      const headerInner = `
+        ${meta.title ? `<div class="join-pres-title">${escapeHTML(meta.title)}</div>` : ''}
+        <div class="join-slide-num">Slide ${idx + 1} of ${order.length} · ${typeLabel(slide.type)}</div>
+        <div class="join-question">${escapeHTML(slide.q)}</div>
+      `;
+
+      if (wasSubmitted && isFresh === false) {
+        body.innerHTML = headerInner + `
+          <div class="submitted-state">
+            <div class="submitted-icon">✓</div>
+            <div class="submitted-title">Submitted</div>
+            <div class="submitted-sub">Waiting for the next slide…</div>
+            <button class="btn btn-ghost" id="another">Change my answer</button>
+          </div>
+        `;
+        document.getElementById('another').onclick = () => {
+          localStorage.removeItem(submittedKey);
+          paintJoin(meta, slide, currentId, true);
+        };
+        return;
+      }
+
+      let inputHTML = '';
+      if (slide.type === 'mc' || slide.type === 'quiz') {
+        inputHTML = `
+          <div class="join-mc-options">
+            ${slide.options.map((o, i) => `
+              <button class="join-mc-btn" data-i="${i}">${escapeHTML(o)}</button>
+            `).join('')}
+          </div>
+        `;
+      } else if (slide.type === 'scale') {
+        inputHTML = `
+          <div class="scale-helper">
+            <span>1 — Low</span>
+            <span>10 — High</span>
+          </div>
+          <div class="scale-input-row">
+            ${Array.from({length:10}, (_, i) => `<button class="scale-btn" data-v="${i+1}">${i+1}</button>`).join('')}
+          </div>
+          <button class="btn btn-cyan" id="submit-scale" style="width:100%;" disabled>Submit</button>
+        `;
+      } else if (slide.type === 'cloud') {
+        inputHTML = `
+          <div class="field">
+            <label>Your answer (1–3 words)</label>
+            <input id="text-input" type="text" placeholder="One or two words" maxlength="40">
+          </div>
+          <button class="btn btn-cyan" id="submit-text" style="width:100%;">Submit</button>
+        `;
+      } else if (slide.type === 'open') {
+        inputHTML = `
+          <div class="field">
+            <label>Your answer</label>
+            <textarea id="text-input" placeholder="Type your response…" maxlength="280"></textarea>
+          </div>
+          <button class="btn btn-cyan" id="submit-text" style="width:100%;">Submit</button>
+        `;
+      } else if (slide.type === 'rank') {
+        inputHTML = `
+          <p class="rank-helper">Drag to order from most important (top) to least important (bottom).</p>
+          <div class="rank-input" id="rank-input">
+            ${slide.options.map((o, i) => `
+              <div class="rank-drag-item" draggable="true" data-i="${i}">
+                <span class="rank-drag-num"></span>
+                <span style="flex:1;">${escapeHTML(o)}</span>
+                <span class="rank-drag-handle">${svgIcon('i-grip')}</span>
+              </div>
+            `).join('')}
+          </div>
+          <button class="btn btn-cyan" id="submit-rank" style="width:100%;">Submit ranking</button>
+        `;
+      }
+
+      body.innerHTML = headerInner + `<div id="answer-area">${inputHTML}</div>`;
+
+      // ---- Bind inputs ----
+      if (slide.type === 'mc' || slide.type === 'quiz') {
+        document.querySelectorAll('.join-mc-btn').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            document.querySelectorAll('.join-mc-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            const i = parseInt(btn.dataset.i, 10);
+            await set(ref(db, `polls/${code}/responses/${currentId}/${pid}`), { choice: i, ts: Date.now() });
+            localStorage.setItem(submittedKey, String(i));
+            setTimeout(() => showSubmitted(slide, currentId, false), 280);
+          });
+        });
+      }
+
+      if (slide.type === 'scale') {
+        let chosen = null;
+        document.querySelectorAll('.scale-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            document.querySelectorAll('.scale-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            chosen = parseInt(btn.dataset.v, 10);
+            document.getElementById('submit-scale').disabled = false;
+          });
+        });
+        document.getElementById('submit-scale').addEventListener('click', async () => {
+          if (chosen == null) return;
+          await set(ref(db, `polls/${code}/responses/${currentId}/${pid}`), { value: chosen, ts: Date.now() });
+          localStorage.setItem(submittedKey, String(chosen));
+          showSubmitted(slide, currentId, false);
+        });
+      }
+
+      if (slide.type === 'cloud' || slide.type === 'open') {
+        document.getElementById('submit-text').addEventListener('click', async () => {
+          const text = document.getElementById('text-input').value.trim();
+          if (!text) return;
+          const newRef = push(ref(db, `polls/${code}/responses/${currentId}`));
+          await set(newRef, { text, ts: Date.now(), pid });
+          localStorage.setItem(submittedKey, '1');
+          showSubmitted(slide, currentId, true);
+        });
+      }
+
+      if (slide.type === 'rank') {
+        const list = document.getElementById('rank-input');
+        renumberRank(list);
+        let dragSrc = null;
+        list.querySelectorAll('.rank-drag-item').forEach(item => {
+          item.addEventListener('dragstart', e => {
+            dragSrc = item;
+            item.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+          });
+          item.addEventListener('dragend', () => {
+            item.classList.remove('dragging');
+            list.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+          });
+          item.addEventListener('dragover', e => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+          });
+          item.addEventListener('dragenter', () => { if (item !== dragSrc) item.classList.add('drag-over'); });
+          item.addEventListener('dragleave', () => item.classList.remove('drag-over'));
+          item.addEventListener('drop', e => {
+            e.preventDefault();
+            if (!dragSrc || dragSrc === item) return;
+            const items = Array.from(list.querySelectorAll('.rank-drag-item'));
+            const srcIdx = items.indexOf(dragSrc);
+            const tgtIdx = items.indexOf(item);
+            if (srcIdx < tgtIdx) {
+              item.parentNode.insertBefore(dragSrc, item.nextSibling);
+            } else {
+              item.parentNode.insertBefore(dragSrc, item);
+            }
+            renumberRank(list);
+          });
+          // Touch support: tap to swap with item above
+          item.addEventListener('click', e => {
+            if (e.detail === 0) return; // ignore programmatic clicks
+            // Single-tap = move up; long-press would be ideal but click is simplest
+          });
+        });
+        // Touch reorder via tap-up/down buttons would be friendlier on mobile, but
+        // HTML5 DnD works on most modern mobile browsers. Add up/down arrows as fallback:
+        addTouchControls(list);
+
+        document.getElementById('submit-rank').addEventListener('click', async () => {
+          const order = Array.from(list.querySelectorAll('.rank-drag-item'))
+            .map(el => parseInt(el.dataset.i, 10));
+          await set(ref(db, `polls/${code}/responses/${currentId}/${pid}`), { order, ts: Date.now() });
+          localStorage.setItem(submittedKey, JSON.stringify(order));
+          showSubmitted(slide, currentId, false);
+        });
+      }
+    }
+
+    function showSubmitted(slide, currentId, allowAnother) {
+      const area = document.getElementById('answer-area');
+      if (!area) return;
+      area.innerHTML = `
+        <div class="submitted-state">
+          <div class="submitted-icon">✓</div>
+          <div class="submitted-title">Submitted</div>
+          <div class="submitted-sub">${allowAnother ? "You can add another response." : "Waiting for the next slide…"}</div>
+          <button class="btn btn-ghost" id="another">${allowAnother ? 'Submit another' : 'Change my answer'}</button>
+        </div>
+      `;
+      document.getElementById('another').onclick = () => {
+        localStorage.removeItem(`pulse_submitted_${code}_${currentId}`);
+        // Re-render input
+        location.reload(); // Cleanest way to reset state
+      };
+    }
+  }
+
+  function renumberRank(list) {
+    list.querySelectorAll('.rank-drag-item').forEach((el, i) => {
+      const num = el.querySelector('.rank-drag-num');
+      if (num) num.textContent = (i + 1) + '.';
+    });
+  }
+
+  function addTouchControls(list) {
+    list.querySelectorAll('.rank-drag-item').forEach((item, i) => {
+      // Add up/down buttons that show on smaller screens (always present, low visual weight)
+      const handle = item.querySelector('.rank-drag-handle');
+      handle.style.cursor = 'grab';
+      handle.addEventListener('click', e => {
+        e.stopPropagation();
+        // toggle: tap to move down, double-tap to move up — too complex.
+        // Instead, just let drag-and-drop handle it. The visual handle is enough.
+      });
+    });
+    // Add arrow buttons inline for accessibility / no-DnD fallback
+    list.querySelectorAll('.rank-drag-item').forEach(item => {
+      if (item.querySelector('.rank-arrows')) return;
+      const arrows = document.createElement('div');
+      arrows.className = 'rank-arrows';
+      arrows.style.cssText = 'display:flex; flex-direction:column; gap:2px;';
+      arrows.innerHTML = `
+        <button type="button" class="rank-up" style="background:transparent;border:1px solid var(--border);color:var(--muted);width:24px;height:20px;border-radius:4px;cursor:pointer;font-size:0.7rem;line-height:1;padding:0;">▲</button>
+        <button type="button" class="rank-down" style="background:transparent;border:1px solid var(--border);color:var(--muted);width:24px;height:20px;border-radius:4px;cursor:pointer;font-size:0.7rem;line-height:1;padding:0;">▼</button>
+      `;
+      item.appendChild(arrows);
+      arrows.querySelector('.rank-up').addEventListener('click', e => {
+        e.stopPropagation();
+        const prev = item.previousElementSibling;
+        if (prev && prev.classList.contains('rank-drag-item')) {
+          item.parentNode.insertBefore(item, prev);
+          renumberRank(list);
+        }
+      });
+      arrows.querySelector('.rank-down').addEventListener('click', e => {
+        e.stopPropagation();
+        const next = item.nextElementSibling;
+        if (next && next.classList.contains('rank-drag-item')) {
+          item.parentNode.insertBefore(next, item);
+          renumberRank(list);
+        }
+      });
+    });
+  }
+
+  // ============== SETUP MODAL ==============
+  function openSetupModal() {
+    const wrap = document.createElement('div');
+    wrap.className = 'modal-bg';
+    wrap.innerHTML = `
+      <div class="modal">
+        <h2>Set up Pulse</h2>
+        <p>Pulse needs a free Firebase project to sync responses between presenter and participants.</p>
+        <ol>
+          <li>Go to <code>console.firebase.google.com</code> and create a new project (skip Analytics).</li>
+          <li>In the left rail: Build → Realtime Database → Create Database → start in <strong>test mode</strong>.</li>
+          <li>Project Settings → Your apps → click the <code>&lt;/&gt;</code> icon → register a web app. Copy the <code>firebaseConfig</code> object.</li>
+          <li>Edit <code>index.html</code> and paste your config in place of the <code>PASTE_YOUR_*</code> placeholders.</li>
+          <li>(Recommended) Realtime Database → Rules tab, paste:
+<pre>{
+  "rules": {
+    "polls": {
+      "$pollId": {
+        ".read": true,
+        ".write": true,
+        ".validate": "$pollId.length &lt;= 8"
+      }
+    }
+  }
+}</pre>
+          </li>
+          <li>Push to GitHub, enable Pages on <code>main</code>. Same as the phishing game.</li>
+        </ol>
+        <p style="margin-top:16px;">Free tier covers ~100 simultaneous connections and 1 GB storage — way more than a meeting room ever needs.</p>
+        <div style="margin-top:24px;"><button class="btn" id="close-modal">Close</button></div>
+      </div>
+    `;
+    document.body.appendChild(wrap);
+    wrap.addEventListener('click', e => { if (e.target === wrap) wrap.remove(); });
+    wrap.querySelector('#close-modal').onclick = () => wrap.remove();
+  }
+
+  // initial render
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', render);
+  } else {
+    render();
+  }
+</script>
+
+</body>
+</html>
