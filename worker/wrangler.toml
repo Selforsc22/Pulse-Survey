@@ -1,0 +1,17 @@
+name = "squeak-easy"
+main = "index.js"
+compatibility_date = "2024-09-23"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "squeakeasy"
+# Filled in by `wrangler d1 create squeakeasy`.
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+
+[vars]
+# The GitHub Pages origin allowed through CORS. Not "*".
+ALLOWED_ORIGIN = "https://selforsc22.github.io"
+
+# Secrets are set with wrangler, never committed:
+#   wrangler secret put SALT
+#   wrangler secret put TURNSTILE_SECRET
